@@ -4,6 +4,7 @@ local TeleportService = game:GetService("TeleportService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -41,6 +42,120 @@ if ScreenGui.Parent ~= game:GetService("CoreGui") then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
 
+-- ==========================================
+-- TOP-LEFT NOTIFICATION SYSTEM
+-- ==========================================
+local function showNotification(text, duration, isError)
+    local NotifFrame = Instance.new("Frame")
+    NotifFrame.Name = "Notification"
+    NotifFrame.Size = UDim2.new(0, 240, 0, 40)
+    NotifFrame.Position = UDim2.new(0, 20, 0, 20)
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    NotifFrame.BackgroundTransparency = 0.15
+    NotifFrame.BorderSizePixel = 0
+    NotifFrame.Parent = ScreenGui
+
+    local NotifCorner = Instance.new("UICorner")
+    NotifCorner.CornerRadius = UDim.new(0, 6)
+    NotifCorner.Parent = NotifFrame
+
+    local NotifStroke = Instance.new("UIStroke")
+    NotifStroke.Thickness = 1.5
+    NotifStroke.Color = isError and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(100, 255, 120)
+    NotifStroke.Parent = NotifFrame
+
+    local NotifLabel = Instance.new("TextLabel")
+    NotifLabel.Size = UDim2.new(1, -20, 1, 0)
+    NotifLabel.Position = UDim2.new(0, 10, 0, 0)
+    NotifLabel.BackgroundTransparency = 1
+    NotifLabel.Text = text
+    NotifLabel.TextColor3 = Color3.fromRGB(240, 240, 245)
+    NotifLabel.TextSize = 12
+    NotifLabel.Font = Enum.Font.GothamBold
+    NotifLabel.TextXAlignment = Enum.TextXAlignment.Left
+    NotifLabel.Parent = NotifFrame
+
+    task.delay(duration or 2, function()
+        local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local t1 = TweenService:Create(NotifFrame, tweenInfo, {BackgroundTransparency = 1})
+        local t2 = TweenService:Create(NotifLabel, tweenInfo, {TextTransparency = 1})
+        local t3 = TweenService:Create(NotifStroke, tweenInfo, {Transparency = 1})
+        
+        t1:Play()
+        t2:Play()
+        t3:Play()
+        t1.Completed:Wait()
+        NotifFrame:Destroy()
+    end)
+end
+
+-- ==========================================
+-- LOADING / WHITELIST SPLASH SCREEN & LOADING BAR
+-- ==========================================
+local SplashFrame = Instance.new("Frame")
+SplashFrame.Name = "SplashFrame"
+SplashFrame.Size = UDim2.new(0, 320, 0, 160)
+SplashFrame.Position = UDim2.new(0.5, -160, 0.5, -80)
+SplashFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+SplashFrame.BackgroundTransparency = 0.1
+SplashFrame.BorderSizePixel = 0
+SplashFrame.Active = true
+SplashFrame.Parent = ScreenGui
+
+local SplashCorner = Instance.new("UICorner")
+SplashCorner.CornerRadius = UDim.new(0, 10)
+SplashCorner.Parent = SplashFrame
+
+local SplashStroke = Instance.new("UIStroke")
+SplashStroke.Thickness = 2
+SplashStroke.Color = Color3.fromRGB(255, 140, 20)
+SplashStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+SplashStroke.Parent = SplashFrame
+
+local SplashTitle = Instance.new("TextLabel")
+SplashTitle.Size = UDim2.new(1, 0, 0, 30)
+SplashTitle.Position = UDim2.new(0, 0, 0, 18)
+SplashTitle.BackgroundTransparency = 1
+SplashTitle.Text = "Xnozi System"
+SplashTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+SplashTitle.TextSize = 18
+SplashTitle.Font = Enum.Font.GothamBold
+SplashTitle.Parent = SplashFrame
+
+local SplashStatus = Instance.new("TextLabel")
+SplashStatus.Size = UDim2.new(1, -40, 0, 25)
+SplashStatus.Position = UDim2.new(0, 20, 0, 52)
+SplashStatus.BackgroundTransparency = 1
+SplashStatus.Text = "Checking Whitelist..."
+SplashStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
+SplashStatus.TextSize = 12
+SplashStatus.Font = Enum.Font.GothamMedium
+SplashStatus.Parent = SplashFrame
+
+local LoadingBg = Instance.new("Frame")
+LoadingBg.Name = "LoadingBg"
+LoadingBg.Size = UDim2.new(1, -50, 0, 8)
+LoadingBg.Position = UDim2.new(0, 25, 0, 95)
+LoadingBg.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+LoadingBg.BorderSizePixel = 0
+LoadingBg.Parent = SplashFrame
+
+local LoadingBgCorner = Instance.new("UICorner")
+LoadingBgCorner.CornerRadius = UDim.new(1, 0)
+LoadingBgCorner.Parent = LoadingBg
+
+local LoadingBar = Instance.new("Frame")
+LoadingBar.Name = "LoadingBar"
+LoadingBar.Size = UDim2.new(0, 0, 1, 0)
+LoadingBar.BackgroundColor3 = Color3.fromRGB(255, 140, 20)
+LoadingBar.BorderSizePixel = 0
+LoadingBar.Parent = LoadingBg
+
+local LoadingBarCorner = Instance.new("UICorner")
+LoadingBarCorner.CornerRadius = UDim.new(1, 0)
+LoadingBarCorner.Parent = LoadingBar
+
+-- Main Frame (Hidden initially)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 620, 0, 380)
@@ -50,6 +165,7 @@ MainFrame.BackgroundTransparency = 0.15
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
@@ -146,7 +262,7 @@ ContentArea.Parent = MainFrame
 local pages = {}
 local tabButtons = {}
 
-local function createTab(name, layoutOrder)
+local function createTab(name, layoutOrder, isSpecialLocked)
     local page = Instance.new("Frame")
     page.Name = name .. "Page"
     page.Size = UDim2.new(1, 0, 1, 0)
@@ -185,6 +301,12 @@ local function createTab(name, layoutOrder)
     tabButtons[name] = btn
 
     btn.MouseButton1Click:Connect(function()
+        if isSpecialLocked then
+            -- 롤백 탭 클릭 시 화이트리스트 아님 메시지 출력 후 탭 이동 차단
+            showNotification("[Xnozi] Whitelist required for Rollback!", 2, true)
+            return
+        end
+
         for tName, tPage in pairs(pages) do
             local isSelected = (tName == name)
             tPage.Visible = isSelected
@@ -371,11 +493,11 @@ local function createKeybindSelector(parent, labelText, yPos, defaultKey, onKeyC
     end)
 end
 
--- Generate Pages (Features 제거됨)
-local MacroPage = createTab("Macro", 1)
-local RollbackPage = createTab("Rollback", 2)
-local UtilizePage = createTab("Utilize", 3)
-local HotkeysPage = createTab("Hotkeys", 4)
+-- Generate Pages (Rollback is marked with true for Whitelist Lock)
+local MacroPage = createTab("Macro", 1, false)
+local RollbackPage = createTab("Rollback & Safety", 2, true) 
+local UtilizePage = createTab("Utilize", 3, false)
+local HotkeysPage = createTab("Hotkeys", 4, false)
 
 pages["Macro"].Visible = true
 tabButtons["Macro"].BackgroundTransparency = 0.6
@@ -554,31 +676,14 @@ createActionButton(macroCard, "Load Macro from File", 150, function()
     end
 end)
 
---- 2. ROLLBACK TAB ---
+--- 2. ROLLBACK TAB (Locked for demonstration) ---
 local rollbackCard = createCard(RollbackPage, "Rollback Controls")
-local isRollbackArmed = false
-
-local function executeRollback()
-    if not isRollbackArmed then return end
-
-    local t = tick()
-    while tick() - t < 1.0 do
-        for i = 1, 100000 do
-            local _ = math.sin(i) * math.cos(i)
-        end
-    end
-
-    pcall(function()
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
-    end)
-end
-
 createToggle(rollbackCard, "Activate Rollback", 32, function(active)
-    isRollbackArmed = active
+    showNotification("[Xnozi] Whitelist required for Rollback!", 2, true)
 end)
 
 createActionButton(rollbackCard, "Confirm Rollback", 64, function()
-    executeRollback()
+    showNotification("[Xnozi] Whitelist required for Rollback!", 2, true)
 end)
 
 --- 3. UTILIZE TAB ---
@@ -607,7 +712,6 @@ local function toggleAntiAfk(forceState)
     end
 end
 
--- Anti-AFK 토글 버튼 (Utilize 카테고리로 이전)
 setAntiAfkToggle = createToggle(utilizeCard, "Activate Anti-AFK", 32, function(active)
     toggleAntiAfk(active)
 end)
@@ -643,7 +747,7 @@ createKeybindSelector(hotkeyCard, "Macro Play", 60, Hotkeys.PlayKey, function(ne
 end)
 
 createKeybindSelector(hotkeyCard, "Execute Rollback", 88, Hotkeys.RollbackKey, function(newKey)
-    Hotkeys.RollbackKey = newKey
+    showNotification("[Xnozi] Whitelist required for Rollback!", 2, true)
 end)
 
 createKeybindSelector(hotkeyCard, "Anti-AFK Toggle", 116, Hotkeys.AntiAfkKey, function(newKey)
@@ -663,11 +767,43 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         elseif input.KeyCode == Hotkeys.PlayKey then
             togglePlay()
         elseif input.KeyCode == Hotkeys.RollbackKey then
-            executeRollback()
+            showNotification("[Xnozi] Whitelist required for Rollback!", 2, true)
         elseif input.KeyCode == Hotkeys.AntiAfkKey then
             toggleAntiAfk()
         elseif input.KeyCode == Hotkeys.ToggleUIKey then
             MainFrame.Visible = not MainFrame.Visible
         end
     end
+end)
+
+-- ==========================================
+-- ANIMATED SPLASH LOADING WITH BAR
+-- ==========================================
+task.spawn(function()
+    local barTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local barTween = TweenService:Create(LoadingBar, barTweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
+    barTween:Play()
+    
+    task.wait(2.5)
+    SplashStatus.Text = "Whitelist Verified!"
+    SplashStatus.TextColor3 = Color3.fromRGB(100, 255, 120)
+    LoadingBar.BackgroundColor3 = Color3.fromRGB(100, 255, 120)
+    
+    task.wait(1.2)
+    
+    local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local fadeTween = TweenService:Create(SplashFrame, fadeInfo, {BackgroundTransparency = 1})
+    TweenService:Create(SplashTitle, fadeInfo, {TextTransparency = 1}):Play()
+    TweenService:Create(SplashStatus, fadeInfo, {TextTransparency = 1}):Play()
+    TweenService:Create(SplashStroke, fadeInfo, {Transparency = 1}):Play()
+    TweenService:Create(LoadingBg, fadeInfo, {BackgroundTransparency = 1}):Play()
+    TweenService:Create(LoadingBar, fadeInfo, {BackgroundTransparency = 1}):Play()
+    
+    fadeTween:Play()
+    fadeTween.Completed:Wait()
+    
+    SplashFrame:Destroy()
+    MainFrame.Visible = true
+    
+    showNotification("[Xnozi] Whitelist Verified!", 2, false)
 end)
